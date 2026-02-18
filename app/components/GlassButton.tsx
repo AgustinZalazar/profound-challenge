@@ -7,6 +7,8 @@ interface GlassButtonProps {
     onClick?: () => void;
     icon?: React.ReactNode;
     variant?: GlassButtonVariant;
+    className?: string;
+    "aria-label"?: string;
 }
 
 const variantClasses: Record<GlassButtonVariant, string> = {
@@ -34,6 +36,8 @@ export default function GlassButton({
     onClick,
     icon,
     variant = "default",
+    className,
+    "aria-label": ariaLabel,
 }: GlassButtonProps) {
     const iconOnly = icon && !children;
 
@@ -42,6 +46,7 @@ export default function GlassButton({
             type={type}
             disabled={disabled}
             onClick={onClick}
+            aria-label={ariaLabel}
             className={`relative cursor-pointer shrink-0 rounded-full text-sm font-medium transition-all duration-200 ${iconOnly
                 ? "flex items-center justify-center p-4"
                 : icon
@@ -52,7 +57,7 @@ export default function GlassButton({
                     : iconOnly
                         ? iconOnlyVariantClasses[variant]
                         : variantClasses[variant]
-                }`}
+                } ${className || ""}`}
         >
             <div
                 className={`pointer-events-none absolute inset-0 rounded-full ${disabled ? "glass-border-soft" : borderClasses[variant]

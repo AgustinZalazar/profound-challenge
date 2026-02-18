@@ -11,7 +11,7 @@ interface FormProps {
 
 function Form({ url, setUrl, isLoading, handleSubmit }: FormProps) {
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col md:flex-row w-full max-w-xl items-center gap-3">
+        <form onSubmit={handleSubmit} noValidate className="flex flex-col md:flex-row w-full max-w-xl items-center gap-3">
             <GlassInput
                 value={url}
                 onChange={setUrl}
