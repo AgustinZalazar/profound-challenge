@@ -9,6 +9,7 @@ import SmallGlow from "./components/SmallGlow";
 import BigGlow from "./components/BigGlow";
 import { useSessions } from "./hooks/useSessions";
 import { useStreamingSummary } from "./hooks/useStreamingSummary";
+import FadeInUp from "./animations/FadeInUp";
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -54,16 +55,22 @@ export default function Home() {
             <div className="relative">
               <SmallGlow />
               <div className="relative z-10 w-full max-w-xl text-center">
-                <h1 className="mb-2 text-2xl font-semibold leading-8 text-white">
-                  Let's get to it
-                </h1>
-                <p className="mb-10 text-[18px] leading-6 text-[#A0A0A0]">
-                  Paste a URL to summarize and understand any content instantly
-                </p>
+                <FadeInUp delay={0.2} duration={0.8} yOffset={20} animateOnMount>
+                  <h1 className="mb-2 text-2xl font-semibold leading-8 text-white">
+                    Let's get to it
+                  </h1>
+                </FadeInUp>
+                <FadeInUp delay={0.4} duration={0.8} yOffset={20} animateOnMount>
+                  <p className="mb-10 text-[18px] leading-6 text-[#A0A0A0]">
+                    Paste a URL to summarize and understand any content instantly
+                  </p>
+                </FadeInUp>
               </div>
-              <div className="relative z-10">
-                <Form url={url} setUrl={setUrl} isLoading={isLoading} handleSubmit={handleSubmit} />
-              </div>
+              <FadeInUp delay={0.6} duration={0.8} yOffset={20} animateOnMount>
+                <div className="relative z-10">
+                  <Form url={url} setUrl={setUrl} isLoading={isLoading} handleSubmit={handleSubmit} />
+                </div>
+              </FadeInUp>
             </div>
           )}
 

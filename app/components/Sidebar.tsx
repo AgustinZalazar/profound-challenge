@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import type { Session } from "@/lib/db/schema";
 import Logo from "./icons/Logo";
 import Close from "./icons/Close";
@@ -24,6 +25,19 @@ export default function Sidebar({
   onClose,
   onLogoClick,
 }: SidebarProps) {
+  const [filter, setFilter] = useState("");
+
+  const filteredSessions = useMemo(() => {
+    if (!filter.trim()) return sessions;
+    const q = filter.toLowerCase();
+    return sessions.filter(
+      (s) =>
+        s.url.toLowerCase().includes(q) ||
+        s.summary?.toLowerCase().includes(q) ||
+        s.title?.toLowerCase().includes(q)
+    );
+  }, [sessions, filter]);
+
   return (
     <>
       {/* Mobile overlay */}
@@ -52,15 +66,49 @@ export default function Sidebar({
           </button>
         </div>
 
+        {sessions.length > 5 && (
+          <div className="p-3">
+            <div className="glass-bg glass-shadow-input relative flex items-center rounded-full px-4 py-3">
+              <div className="glass-border pointer-events-none absolute inset-0 rounded-full" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="mr-2 shrink-0 text-white/40"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Filter sessions..."
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="flex-1 bg-transparent text-sm text-white/80 placeholder-white/30 outline-none"
+              />
+            </div>
+          </div>
+        )}
+
         {/* Session list */}
         <div className="flex-1 overflow-y-auto">
           {sessions.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-zinc-500">
               No sessions yet
             </p>
+          ) : filteredSessions.length === 0 ? (
+            <p className="px-4 py-8 text-center text-sm text-zinc-500">
+              No matching sessions
+            </p>
           ) : (
             <ul className="flex flex-col gap-1">
-              {sessions.map((session) => (
+              {filteredSessions.map((session) => (
                 <li key={session.id}>
                   <button
                     onClick={() => {
