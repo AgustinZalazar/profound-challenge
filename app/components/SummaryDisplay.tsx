@@ -258,7 +258,7 @@ function SummaryDisplay({ selectedSession, displayedSummary, handleDeleteSession
                     </div>
                 </>
             ) : (
-                <span className="text-white">
+                <span className="block text-center text-white">
                     Generating summary...
                 </span>
             )}

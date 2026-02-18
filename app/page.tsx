@@ -15,7 +15,7 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [url, setUrl] = useState("");
 
-  const { sessions, fetchSessions, deleteSession } = useSessions();
+  const { sessions, isLoadingSessions, fetchSessions, deleteSession } = useSessions();
 
   const {
     selectedSession,
@@ -39,6 +39,7 @@ export default function Home() {
     <div className="flex min-h-screen relative overflow-hidden font-sans bg-zinc-950">
       <Sidebar
         sessions={sessions}
+        isLoadingSessions={isLoadingSessions}
         onSelectSession={selectSession}
         selectedSessionId={selectedSession?.id}
         isOpen={sidebarOpen}

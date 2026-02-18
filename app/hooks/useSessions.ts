@@ -4,6 +4,7 @@ import { sessionsListSchema } from "@/lib/validators";
 
 export function useSessions() {
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [isLoadingSessions, setIsLoadingSessions] = useState(true);
 
   const fetchSessions = useCallback(async (query = "") => {
     try {
@@ -20,6 +21,8 @@ export function useSessions() {
       }
     } catch {
       console.error("Failed to fetch sessions");
+    } finally {
+      setIsLoadingSessions(false);
     }
   }, []);
 
@@ -37,5 +40,5 @@ export function useSessions() {
     fetchSessions();
   }, [fetchSessions]);
 
-  return { sessions, fetchSessions, deleteSession };
+  return { sessions, isLoadingSessions, fetchSessions, deleteSession };
 }

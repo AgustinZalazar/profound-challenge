@@ -6,10 +6,12 @@ import Logo from "./icons/Logo";
 import Close from "./icons/Close";
 import More from "./icons/More";
 import GlassButton from "./GlassButton";
+import Search from "./icons/Search";
 
 
 interface SidebarProps {
   sessions: Session[];
+  isLoadingSessions?: boolean;
   onSelectSession: (session: Session) => void;
   selectedSessionId?: string;
   isOpen: boolean;
@@ -19,6 +21,7 @@ interface SidebarProps {
 
 export default function Sidebar({
   sessions,
+  isLoadingSessions,
   onSelectSession,
   selectedSessionId,
   isOpen,
@@ -70,21 +73,7 @@ export default function Sidebar({
           <div className="p-3">
             <div className="glass-bg glass-shadow-input relative flex items-center rounded-full px-4 py-3">
               <div className="glass-border pointer-events-none absolute inset-0 rounded-full" />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="mr-2 shrink-0 text-white/40"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.3-4.3" />
-              </svg>
+              <Search />
               <input
                 type="text"
                 placeholder="Filter sessions..."
@@ -98,7 +87,16 @@ export default function Sidebar({
 
         {/* Session list */}
         <div className="flex-1 overflow-y-auto">
-          {sessions.length === 0 ? (
+          {isLoadingSessions ? (
+            <ul className="flex flex-col gap-1">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <li key={i} className="px-6 py-4 flex items-center justify-between">
+                  <div className="h-4 rounded bg-white/10 animate-pulse" style={{ width: `${120 + (i % 3) * 30}px` }} />
+                  <div className="h-4 w-4 rounded bg-white/5 animate-pulse" />
+                </li>
+              ))}
+            </ul>
+          ) : sessions.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-zinc-500">
               No sessions yet
             </p>
