@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import type { Session } from "@/lib/db/schema";
 import Logo from "./icons/Logo";
 import Close from "./icons/Close";
+import More from "./icons/More";
+
 
 interface SidebarProps {
   sessions: Session[];
@@ -12,6 +14,7 @@ interface SidebarProps {
   onSearch: (query: string) => void;
   isOpen: boolean;
   onClose: () => void;
+  onLogoClick: () => void;
 }
 
 export default function Sidebar({
@@ -21,6 +24,7 @@ export default function Sidebar({
   onSearch,
   isOpen,
   onClose,
+  onLogoClick,
 }: SidebarProps) {
   // const [searchQuery, setSearchQuery] = useState("");
 
@@ -36,21 +40,23 @@ export default function Sidebar({
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/30 md:hidden"
+          className="fixed inset-0 z-10000 bg-black/80 lg:bg-black/30 md:hidden"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-full w-72 flex-col border-r  transition-transform duration-300 border-zinc-800 bg-black/30 md:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed left-0 top-0 z-10000 flex h-full w-72 flex-col border-r  transition-transform duration-300 border-zinc-800 bg-black/80 lg:bg-black/30 md:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"
           }`}
       >
         <div className="flex items-center justify-between border-b p-4 lg:px-6 border-zinc-800">
-          <Logo />
+          <button onClick={onLogoClick} className="cursor-pointer">
+            <Logo />
+          </button>
           <button
             onClick={onClose}
-            className="rounded-md p-1 text-zinc-500  hover:bg-zinc-800 hover:text-zinc-300"
+            className="rounded-md p-1 text-zinc-500  hover:bg-white/6 hover:text-zinc-300"
           >
             <Close />
           </button>
@@ -74,7 +80,7 @@ export default function Sidebar({
               No sessions yet
             </p>
           ) : (
-            <ul className="flex flex-col gap-1 p-2">
+            <ul className="flex flex-col gap-1">
               {sessions.map((session) => (
                 <li key={session.id}>
                   <button
@@ -82,17 +88,20 @@ export default function Sidebar({
                       onSelectSession(session);
                       onClose();
                     }}
-                    className={`w-full rounded-md px-3 py-2 text-left transition-colors ${selectedSessionId === session.id
-                      ? "bg-zinc-100 dark:bg-zinc-800"
-                      : "hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                    className={`w-full px-6 py-4 text-left flex items-center justify-between transition-colors ${selectedSessionId === session.id
+                      ? "bg-white/10"
+                      : "hover:bg-white/6"
                       }`}
                   >
-                    <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      {session.title || session.url}
-                    </p>
-                    <p className="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">
+                    <p className="truncate text-[13px] leading-4  max-w-[180px] font-regular text-white ">
                       {session.url}
                     </p>
+                    {/* <button
+                      onClick={onClose}
+                      className="rounded-md p-1 text-zinc-500  hover:bg-white/6 hover:text-zinc-300"
+                    > */}
+                    <More />
+                    {/* </button> */}
                   </button>
                 </li>
               ))}

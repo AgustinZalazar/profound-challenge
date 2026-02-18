@@ -7,6 +7,7 @@ import Header from "./components/Header";
 import Form from "./components/Form";
 import SummaryDisplay from "./components/SummaryDisplay";
 import SmallGlow from "./components/SmallGlow";
+import BigGlow from "./components/BigGlow";
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -123,15 +124,20 @@ export default function Home() {
         onSearch={fetchSessions}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        onLogoClick={() => {
+          setSelectedSession(null);
+          setStreamedText("");
+          setError(null);
+        }}
       />
 
-      {/* Main content */}
       <div className="flex flex-1 flex-col md:ml-72">
-        {/* Mobile header */}
-        <Header setSidebarOpen={setSidebarOpen} />
-
-        {/* Content area */}
-        <main className="flex flex-1 flex-col items-center justify-center px-4 py-8">
+        <Header setSidebarOpen={setSidebarOpen} onLogoClick={() => {
+          setSelectedSession(null);
+          setStreamedText("");
+          setError(null);
+        }} />
+        <main className="flex flex-1 flex-col items-center justify-center px-4 py-8 xl:pt-26">
           {!selectedSession && !streamedText && !isLoading && (
             <div className="relative">
               <SmallGlow />
@@ -143,13 +149,11 @@ export default function Home() {
                   Paste a URL to summarize and understand any content instantly
                 </p>
               </div>
-              {/* URL Input */}
               <div className="relative z-10">
                 <Form url={url} setUrl={setUrl} isLoading={isLoading} handleSubmit={handleSubmit} />
               </div>
             </div>
           )}
-
 
           {/* Error */}
           {error && (
@@ -158,13 +162,12 @@ export default function Home() {
             </div>
           )}
 
-          {/* Summary display */}
           {(displayedSummary || isLoading) && (
             <SummaryDisplay selectedSession={selectedSession} displayedSummary={displayedSummary} handleDeleteSession={handleDeleteSession} />
           )}
         </main>
       </div>
-      <div className="pointer-events-none absolute -bottom-20 -left-20 z-1000 h-80 w-80 rounded-full bg-[rgba(95,45,124,0.6)] blur-[120px] md:-left-150 md:top-125 md:h-500 md:w-500 lg:-left-276 lg:top-224.5 lg:h-801.25 lg:w-801.25" />
+      <BigGlow />
     </div>
   );
 }
