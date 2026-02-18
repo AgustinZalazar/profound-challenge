@@ -1,151 +1,63 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import Sidebar from "./components/Sidebar";
-import type { Session } from "@/lib/db/schema";
 import Header from "./components/Header";
 import Form from "./components/Form";
 import SummaryDisplay from "./components/SummaryDisplay";
 import SmallGlow from "./components/SmallGlow";
 import BigGlow from "./components/BigGlow";
+import { useSessions } from "./hooks/useSessions";
+import { useStreamingSummary } from "./hooks/useStreamingSummary";
 
 export default function Home() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [url, setUrl] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [streamedText, setStreamedText] = useState("");
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchSessions = useCallback(async (query = "") => {
-    try {
-      const params = query ? `?q=${encodeURIComponent(query)}` : "";
-      const res = await fetch(`/api/sessions${params}`);
-      if (res.ok) {
-        const data = await res.json();
-        setSessions(data);
-      }
-    } catch {
-      console.error("Failed to fetch sessions");
-    }
-  }, []);
+  const { sessions, fetchSessions, deleteSession } = useSessions();
 
-  // Load sessions on mount
-  useState(() => {
-    fetchSessions();
-  });
+  const {
+    selectedSession,
+    isLoading,
+    error,
+    displayedSummary,
+    submitUrl,
+    selectSession,
+    clearView,
+    clearError,
+    handleDelete,
+  } = useStreamingSummary({ onComplete: fetchSessions });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!url.trim() || isLoading) return;
-
-    setIsLoading(true);
-    setError(null);
-    setStreamedText("");
-    setSelectedSession(null);
-
-    try {
-      const res = await fetch("/api/sessions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim() }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to create summary");
-      }
-
-      const sessionId = res.headers.get("X-Session-Id");
-      const reader = res.body?.getReader();
-      const decoder = new TextDecoder();
-
-      if (!reader) throw new Error("No response stream");
-
-      let fullText = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        fullText += chunk;
-        setStreamedText(fullText);
-      }
-
-      setUrl("");
-      await fetchSessions();
-
-      // Select the newly created session
-      if (sessionId) {
-        const res = await fetch(`/api/sessions/${sessionId}`);
-        if (res.ok) {
-          const session = await res.json();
-          setSelectedSession(session);
-        }
-      }
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setIsLoading(false);
-    }
+    const success = await submitUrl(url);
+    if (success) setUrl("");
   };
-
-  const handleDeleteSession = async (sessionId: string) => {
-    try {
-      const res = await fetch(`/api/sessions/${sessionId}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
-        if (selectedSession?.id === sessionId) {
-          setSelectedSession(null);
-          setStreamedText("");
-        }
-        await fetchSessions();
-      }
-    } catch {
-      console.error("Failed to delete session");
-    }
-  };
-
-  const handleSelectSession = (session: Session) => {
-    setSelectedSession(session);
-    setStreamedText("");
-    setError(null);
-  };
-
-  const displayedSummary = selectedSession?.summary || streamedText;
 
   return (
-    <div className="flex min-h-screen relative overflow-hidden font-sans dark:bg-zinc-950">
+    <div className="flex min-h-screen relative overflow-hidden font-sans bg-zinc-950">
       <Sidebar
         sessions={sessions}
-        onSelectSession={handleSelectSession}
+        onSelectSession={selectSession}
         selectedSessionId={selectedSession?.id}
-        onSearch={fetchSessions}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        onLogoClick={() => {
-          setSelectedSession(null);
-          setStreamedText("");
-          setError(null);
-        }}
+        onLogoClick={clearView}
       />
 
-      <div className="flex flex-1 flex-col md:ml-72">
-        <Header setSidebarOpen={setSidebarOpen} onLogoClick={() => {
-          setSelectedSession(null);
-          setStreamedText("");
-          setError(null);
-        }} />
+      <div className={`flex flex-1 flex-col transition-[margin] duration-300 ${sidebarOpen ? "md:ml-72" : ""}`}>
+        {!sidebarOpen && (
+          <Header setSidebarOpen={setSidebarOpen} onLogoClick={clearView} />
+        )}
         <main className="flex flex-1 flex-col items-center justify-center px-4 py-8 xl:pt-26">
-          {!selectedSession && !streamedText && !isLoading && (
+          {!selectedSession && !displayedSummary && !isLoading && (
             <div className="relative">
               <SmallGlow />
               <div className="relative z-10 w-full max-w-xl text-center">
-                <h1 className="mb-2 text-2xl font-semibold leading-8 dark:text-white">
+                <h1 className="mb-2 text-2xl font-semibold leading-8 text-white">
                   Let's get to it
                 </h1>
-                <p className="mb-10 text-[18px] leading-6 dark:text-[#A0A0A0]">
+                <p className="mb-10 text-[18px] leading-6 text-[#A0A0A0]">
                   Paste a URL to summarize and understand any content instantly
                 </p>
               </div>
@@ -155,15 +67,24 @@ export default function Home() {
             </div>
           )}
 
-          {/* Error */}
           {error && (
-            <div className="mt-4 w-full max-w-xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400">
-              {error}
+            <div className="mt-4 w-full max-w-xl rounded-lg border border-red-800 bg-red-950 px-4 py-3 text-sm text-red-400 flex items-start justify-between gap-2">
+              <span>{error}</span>
+              <button onClick={clearError} className="shrink-0 cursor-pointer text-red-400 hover:text-red-300 transition-colors" aria-label="Dismiss error">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
           )}
 
           {(displayedSummary || isLoading) && (
-            <SummaryDisplay selectedSession={selectedSession} displayedSummary={displayedSummary} handleDeleteSession={handleDeleteSession} />
+            <SummaryDisplay
+              selectedSession={selectedSession}
+              displayedSummary={displayedSummary}
+              handleDeleteSession={(id) => handleDelete(id, deleteSession)}
+              sidebarOpen={sidebarOpen}
+            />
           )}
         </main>
       </div>
@@ -171,4 +92,3 @@ export default function Home() {
     </div>
   );
 }
-

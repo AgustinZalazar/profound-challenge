@@ -18,7 +18,7 @@ export async function fetchPageContent(url: string): Promise<PageContent> {
       signal: controller.signal,
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (compatible; SummaryBot/1.0; +https://example.com)",
+          "Mozilla/5.0 (compatible; ProfoundSummarizer/1.0)",
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
     });
