@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import Form from "./components/Form";
@@ -12,9 +12,13 @@ import { useStreamingSummary } from "./hooks/useStreamingSummary";
 import FadeInUp from "./animations/FadeInUp";
 
 export default function Home() {
-  const [sidebarOpen, setSidebarOpen] = useState(() =>
-    typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches
-  );
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 768px)").matches) {
+      setSidebarOpen(true);
+    }
+  }, []);
   const [url, setUrl] = useState("");
 
   const { sessions, isLoadingSessions, fetchSessions, deleteSession } = useSessions();

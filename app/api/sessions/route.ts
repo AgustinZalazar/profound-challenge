@@ -135,19 +135,11 @@ export async function POST(request: NextRequest) {
       pageContent = await fetchPageContent(url);
     } catch (error) {
       await db
-        .update(sessions)
-        .set({
-          status: "error",
-          error: (error as Error).message,
-          updatedAt: new Date(),
-        })
+        .delete(sessions)
         .where(eq(sessions.id, session.id));
 
       return NextResponse.json(
-        {
-          id: session.id,
-          error: `Failed to fetch page: ${(error as Error).message}`,
-        },
+        { error: `Failed to fetch page: ${(error as Error).message}` },
         { status: 422 }
       );
     }
