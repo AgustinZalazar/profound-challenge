@@ -47,7 +47,7 @@ export default function GlassButton({
             disabled={disabled}
             onClick={onClick}
             aria-label={ariaLabel}
-            className={`relative cursor-pointer shrink-0 rounded-full text-sm font-medium transition-all duration-200 ${iconOnly
+            className={`relative cursor-pointer shrink-0 rounded-full text-sm font-medium transition-all duration-200 hover:brightness-115 hover:scale-[1.03] active:scale-[0.97] ${iconOnly
                 ? "flex items-center justify-center p-4"
                 : icon
                     ? "flex items-center gap-2 px-5 py-3"

@@ -12,7 +12,9 @@ import { useStreamingSummary } from "./hooks/useStreamingSummary";
 import FadeInUp from "./animations/FadeInUp";
 
 export default function Home() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches
+  );
   const [url, setUrl] = useState("");
 
   const { sessions, isLoadingSessions, fetchSessions, deleteSession } = useSessions();
